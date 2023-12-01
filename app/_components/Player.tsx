@@ -1,6 +1,7 @@
 "use client";
 import { SVGProps, use, useEffect, useState } from "react";
 import { controlsStore } from "../_store/controlStore";
+import { queueStore } from "../_store/queueStore";
 
 function MaterialSymbolsPlayCircle(props: SVGProps<SVGSVGElement>) {
   return (
@@ -112,6 +113,7 @@ function SolarMusicNote4BoldDuotone(props: SVGProps<SVGSVGElement>) {
 
 export default function Player({
   songLink,
+  setSong,
 }: {
   songLink:
     | {
@@ -120,6 +122,7 @@ export default function Player({
         songHash: HTMLAudioElement;
       }
     | undefined;
+  setSong: CallableFunction;
 }) {
   const [currentSong, setCurrentSong] = useState<HTMLAudioElement | undefined>(
     songLink?.songHash
@@ -130,12 +133,12 @@ export default function Player({
 
   const setVolume = controlsStore((state) => state.changeVolumeValue);
   const volumeVal = controlsStore((state) => state.volumeValue);
-
+  const queueArray = queueStore((state) => state.queueArray);
+  const removeFromQueue = queueStore((state) => state.removeFromQueue);
   useEffect(() => {
     const playInterval = setInterval(() => {
       if (currentSong) setCurrentDuration(currentSong.currentTime);
     }, 10);
-    console.log(currentSong);
     if (currentSong && songLink) {
       currentSong.volume = volumeVal;
       if (songLink.songHash !== currentSong) {
@@ -148,29 +151,37 @@ export default function Player({
       }
 
       currentSong.onended = () => {
-        setIsPlaying(false);
-        setCurrentDuration(0);
+        if (!queueArray || queueArray?.length == 0) {
+          setIsPlaying(false);
+          setCurrentDuration(0);
+        } else {
+          if (queueArray) {
+            setSong(queueArray[0]);
+            console.log(queueArray[0]);
+            if (queueArray?.length != 0) removeFromQueue();
+          }
+        }
       };
     }
 
     return () => clearInterval(playInterval);
-  }, [currentSong, songLink, volumeVal]);
+  }, [currentSong, songLink, volumeVal, queueArray, setSong, removeFromQueue]);
 
   return (
     <div className="fixed bottom-0 w-full border-t-[1px] bg-white border-black px-5 py-5 grid grid-cols-12">
-      <div className="flex justify-center items-center sm:col-span-4 md:col-span-2 col-span-1">
+      <div className="flex justify-start items-center sm:col-span-4 md:col-span-2 col-span-8">
         <SolarMusicNote4BoldDuotone className="text-2xl" />
-        <div className="ml-3 font-Kanit  hidden sm:block">
+        <div className="ml-3 font-Kanit">
           <p className="text-xl font-semibold">{songLink?.songName}</p>
           <p className="text-xs">{songLink?.songAuthor}</p>
         </div>
       </div>
-      <div className="md:col-span-8 col-span-10 sm:col-span-4 place-self-center">
+      <div className="md:col-span-8 col-span-2 sm:col-span-4 place-self-center grid gap-y-2">
         <div className="flex items-center justify-center">
-          <MaterialSymbolsArrowCircleLeftOutline className="text-3xl" />
+          <MaterialSymbolsArrowCircleLeftOutline className="text-3xl hidden md:block" />
           {isPlaying ? (
             <MaterialSymbolsPauseCircle
-              className="text-5xl mx-5 cursor-pointer"
+              className="text-5xl mx-3 cursor-pointer"
               onClick={() => {
                 if (currentSong) currentSong.pause();
                 setIsPlaying(false);
@@ -178,14 +189,17 @@ export default function Player({
             />
           ) : (
             <MaterialSymbolsPlayCircle
-              className="text-5xl mx-5 cursor-pointer"
+              className="text-5xl mx-3 cursor-pointer"
               onClick={() => {
-                if (currentSong) currentSong.play();
-                setIsPlaying(true);
+                if (currentSong) {
+                  currentSong.play();
+                  setIsPlaying(true);
+                  console.log(currentSong);
+                }
               }}
             />
           )}
-          <MaterialSymbolsArrowCircleRightOutline className="text-3xl" />
+          <MaterialSymbolsArrowCircleRightOutline className="text-3xl hidden md:block" />
         </div>
         <input
           type="range"
@@ -199,7 +213,7 @@ export default function Player({
           }}
         />
       </div>
-      <div className="flex items-center justify-center sm:col-span-4 md:col-span-2 col-span-1">
+      <div className="flex items-center justify-center sm:col-span-4 md:col-span-2 col-span-2 relative">
         <SolarSpeakerMinimalisticBroken className="text-2xl" />
         <input
           type="range"
@@ -207,7 +221,7 @@ export default function Player({
           max="100"
           defaultValue={volumeVal * 100}
           step="1"
-          className="h-[5px] ml-4 bg-black hidden sm:block transition-all"
+          className="h-[5px] ml-4 bg-black transition-all hidden md:block"
           onChange={(eV) => {
             setVolume(Number(eV.target.value) / 100);
             if (currentSong) currentSong.volume = volumeVal;

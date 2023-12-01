@@ -18,14 +18,14 @@ export default function Home() {
     songName: "Hukum",
     songAuthor: "Anirudh Ravichander",
     songHash: new Audio(
-      "https://ipfs.io/ipfs/QmQ4nVjyfWqwak8L8yE4gMfBqepEMyBdAJP8hmCyTL1rkA"
+      "https://yellow-genuine-felidae-94.mypinata.cloud/ipfs/QmQ4nVjyfWqwak8L8yE4gMfBqepEMyBdAJP8hmCyTL1rkA?stream=true"
     ),
   });
 
   return (
     <main>
       <Songs setCurrentSong={setCurrentSong} />
-      <Player songLink={currentSong} />
+      <Player songLink={currentSong} setSong={setCurrentSong} />
     </main>
   );
 }

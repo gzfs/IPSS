@@ -1,5 +1,24 @@
 import { SVGProps } from "react";
+import { queueStore } from "../_store/queueStore";
 
+function MaterialSymbolsLightAddToPhotosRounded(
+  props: SVGProps<SVGSVGElement>
+) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M13.5 13.5q.213 0 .357-.144Q14 13.213 14 13v-2.5h2.5q.213 0 .356-.144Q17 10.212 17 10t-.144-.356Q16.713 9.5 16.5 9.5H14V7q0-.213-.144-.356q-.144-.144-.357-.144q-.212 0-.356.144Q13 6.788 13 7v2.5h-2.5q-.213 0-.356.144Q10 9.788 10 10t.144.356q.144.143.356.143H13V13q0 .213.144.356t.357.144ZM8.116 17q-.69 0-1.152-.462q-.463-.463-.463-1.153V4.615q0-.69.463-1.152Q7.425 3 8.115 3h10.77q.69 0 1.152.463q.463.462.463 1.152v10.77q0 .69-.462 1.153q-.463.462-1.153.462H8.115Zm-3 3q-.69 0-1.152-.462q-.463-.463-.463-1.153V7.115q0-.212.144-.356T4 6.615q.212 0 .356.144q.143.144.143.356v11.27q0 .269.173.442t.442.173h11.27q.212 0 .356.144t.144.357q0 .212-.144.356q-.144.143-.356.143H5.115Z"
+      ></path>
+    </svg>
+  );
+}
 function MaterialSymbolsLightPlayCircleOutlineRounded(
   props: SVGProps<SVGSVGElement>
 ) {
@@ -56,6 +75,8 @@ export default function SongCard({
     >
   >;
 }) {
+  const addToQueue = queueStore((state) => state.addToQueue);
+  const queueArray = queueStore((state) => state.queueArray);
   return (
     <div className="shadow-[5px_5px_0px_0px_rgba(0,0,0)] w-[250px] h-[300px] border border-1 border-black relative">
       <div className="flex items-center justify-center py-8">
@@ -65,6 +86,22 @@ export default function SongCard({
         <p className="font-Kanit text-2xl font-semibold">{songName}</p>
         <p className="font-Kanit">{songAuthor}</p>
       </div>
+      <button
+        className="font-Kanit my-2 py-1 bg-black text-white w-fit px-2  text-xs outline-none"
+        disabled={queueArray?.some((e) => e.songName === songName)}
+        onClick={() => {
+          addToQueue({
+            songName: songName,
+            songAuthor: songAuthor,
+            songHash: new Audio(
+              `https://yellow-genuine-felidae-94.mypinata.cloud/ipfs/${songHash}?stream=true`
+            ),
+          });
+        }}
+      >
+        +{" "}
+        {!queueArray?.some((e) => e.songName === songName) ? "Queue" : "Queued"}
+      </button>
       <button className="w-[50px] h-[50px] bg-black absolute bottom-0 right-0 m-2 rounded-full flex items-center justify-center outline-none">
         <MaterialSymbolsLightPlayCircleOutlineRounded
           className="text-white text-5xl"

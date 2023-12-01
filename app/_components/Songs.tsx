@@ -15,7 +15,7 @@ export default function Songs({
   >;
 }) {
   return (
-    <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 p-10 gap-16 place-items-center mb-24">
+    <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 p-10 gap-16 place-items-center py-24">
       <SongCard
         songAuthor="Anirudh Ravichander"
         songName="Badass"
